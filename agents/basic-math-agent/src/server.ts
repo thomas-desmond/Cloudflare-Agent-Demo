@@ -1,7 +1,5 @@
 import { routeAgentRequest, type Schedule } from "agents";
-
 import { getSchedulePrompt } from "agents/schedule";
-
 import { AIChatAgent } from "agents/ai-chat-agent";
 import {
   generateId,
