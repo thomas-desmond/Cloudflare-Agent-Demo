@@ -10,45 +10,146 @@ export class MyMCP extends McpAgent {
 	});
 
 	async init() {
-		// Simple addition tool
-		this.server.tool("add", { a: z.number(), b: z.number() }, async ({ a, b }) => ({
-			content: [{ type: "text", text: String(a + b) }],
-		}));
 
-		// Calculator tool with multiple operations
+		// Power tool - raise a number to a power
 		this.server.tool(
-			"calculate",
+			"power",
 			{
-				operation: z.enum(["add", "subtract", "multiply", "divide"]),
-				a: z.number(),
-				b: z.number(),
+				base: z.number(),
+				exponent: z.number(),
 			},
-			async ({ operation, a, b }) => {
-				let result: number;
-				switch (operation) {
-					case "add":
-						result = a + b;
-						break;
-					case "subtract":
-						result = a - b;
-						break;
-					case "multiply":
-						result = a * b;
-						break;
-					case "divide":
-						if (b === 0)
-							return {
-								content: [
-									{
-										type: "text",
-										text: "Error: Cannot divide by zero",
-									},
-								],
-							};
-						result = a / b;
-						break;
+			async ({ base, exponent }) => {
+				try {
+					const result = Math.pow(base, exponent);
+					
+					// Check for invalid results
+					if (!isFinite(result)) {
+						return {
+							content: [
+								{
+									type: "text",
+									text: `Error: Result is ${result}. Check your inputs: ${base}^${exponent}`,
+								},
+							],
+						};
+					}
+					
+					return { 
+						content: [{ 
+							type: "text", 
+							text: `${base}^${exponent} = ${result}` 
+						}] 
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error calculating ${base}^${exponent}: ${error}`,
+							},
+						],
+					};
 				}
-				return { content: [{ type: "text", text: String(result) }] };
+			},
+		);
+
+		// Square root tool
+		this.server.tool(
+			"square_root",
+			{
+				number: z.number(),
+			},
+			async ({ number }) => {
+				if (number < 0) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error: Cannot calculate square root of negative number ${number}`,
+							},
+						],
+					};
+				}
+				
+				const result = Math.sqrt(number);
+				return { 
+					content: [{ 
+						type: "text", 
+						text: `√${number} = ${result}` 
+					}] 
+				};
+			},
+		);
+
+		// Sine function
+		this.server.tool(
+			"sine",
+			{
+				angle: z.number(),
+				unit: z.enum(["degrees", "radians"]).default("degrees"),
+			},
+			async ({ angle, unit }) => {
+				const radians = unit === "degrees" ? (angle * Math.PI) / 180 : angle;
+				const result = Math.sin(radians);
+				
+				return { 
+					content: [{ 
+						type: "text", 
+						text: `sin(${angle}${unit === "degrees" ? "°" : " rad"}) = ${result}` 
+					}] 
+				};
+			},
+		);
+
+		// Cosine function
+		this.server.tool(
+			"cosine",
+			{
+				angle: z.number(),
+				unit: z.enum(["degrees", "radians"]).default("degrees"),
+			},
+			async ({ angle, unit }) => {
+				const radians = unit === "degrees" ? (angle * Math.PI) / 180 : angle;
+				const result = Math.cos(radians);
+				
+				return { 
+					content: [{ 
+						type: "text", 
+						text: `cos(${angle}${unit === "degrees" ? "°" : " rad"}) = ${result}` 
+					}] 
+				};
+			},
+		);
+
+		// Tangent function
+		this.server.tool(
+			"tangent",
+			{
+				angle: z.number(),
+				unit: z.enum(["degrees", "radians"]).default("degrees"),
+			},
+			async ({ angle, unit }) => {
+				const radians = unit === "degrees" ? (angle * Math.PI) / 180 : angle;
+				const result = Math.tan(radians);
+				
+				// Check for undefined tangent (at 90°, 270°, etc.)
+				if (!isFinite(result)) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error: tan(${angle}${unit === "degrees" ? "°" : " rad"}) is undefined (asymptote)`,
+							},
+						],
+					};
+				}
+				
+				return { 
+					content: [{ 
+						type: "text", 
+						text: `tan(${angle}${unit === "degrees" ? "°" : " rad"}) = ${result}` 
+					}] 
+				};
 			},
 		);
 	}
