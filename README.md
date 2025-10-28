@@ -44,7 +44,7 @@ Build and deploy AI agents and MCP servers globally using Cloudflare's serverles
 
 ## 📊 **The Application**
 
-INSERT ARCHITECTURE DIAGRAM
+<img width="2278" height="2335" alt="image" src="https://github.com/user-attachments/assets/934b492e-595d-48e0-846e-130c587ac2a0" />
   
 
 ### 🚀 **DEPLOY**: AI Agents & Remote MCP Servers
@@ -77,7 +77,7 @@ The application utilizes three dedicated remote MCP servers, each providing a sp
 All communication with LLM providers is channeled through a single AI Gateway layer. The Gateway uses the Bring Your Own Key (BYOK) feature to simplify development and enhance security. Your application needs only one API key, while the AI Gateway securely manages and stores the separate vendor keys for providers like OpenAI, which this application uses, in it's dedicated secret store.
 
 **MCP Server Portals**
-The application utilizes two distinct **MCP Server Portals** to manage access to backend services:
+The application utilizes two distinct MCP Server Portals to manage access to remote MCP servers. The agents use [Service Tokens](https://developers.cloudflare.com/cloudflare-one/access-controls/service-credentials/service-tokens/) to authenticate with the Server Portals:
 
 -   **Basic Math Server Portal:** Provides limited access, connecting _only_ to the `multiply` MCP server.
 -   **Advanced Math Server Portal:** Grants broad access to the `multiply`, `division`, and the `Advanced Math` Remote MCP Servers. Importantly, this portal is specifically configured to intentionally block the cosine and tangent math tools within the Advanced Math Remote server.
