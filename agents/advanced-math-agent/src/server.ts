@@ -30,6 +30,7 @@ const model = openaiWithProxy("gpt-4o-2024-11-20");
  * Chat Agent implementation that handles real-time AI chat interactions
  */
 export class Chat extends AIChatAgent<Env> {
+  private mcpConnected = false;
   /**
    * Handles incoming chat messages and manages the response stream
    */
@@ -39,22 +40,28 @@ export class Chat extends AIChatAgent<Env> {
   ) {
 
     
-    console.log("🚀 Starting MCP connection...");
-    const startTime = Date.now();
+    // Only connect if not already connected
+    if (!this.mcpConnected) {
+      console.log("🚀 Starting MCP connection...");
+      const startTime = Date.now();
 
-    //TODO: DON"T CONNECT IF ALREADY CONNECTED
-    await this.mcp.connect("https://advanced-math.areyouaidemo.com/mcp", {
-      transport: {
-        requestInit: {
-          headers: {
-            "CF-Access-Client-Id": `${process.env.CF_ACCESS_CLIENT_ID}`,
-            "CF-Access-Client-Secret": `${process.env.CF_ACCESS_CLIENT_SECRET}`
+      await this.mcp.connect("https://advanced-math.areyouaidemo.com/mcp", {
+        transport: {
+          requestInit: {
+            headers: {
+              "CF-Access-Client-Id": `${process.env.CF_ACCESS_CLIENT_ID}`,
+              "CF-Access-Client-Secret": `${process.env.CF_ACCESS_CLIENT_SECRET}`
+            }
           }
         }
-      }
-    });
-    const endTime = Date.now();
-    console.log(`✅ MCP connection completed in ${endTime - startTime}ms`);
+      });
+      
+      this.mcpConnected = true;
+      const endTime = Date.now();
+      console.log(`✅ MCP connection completed in ${endTime - startTime}ms`);
+    } else {
+      console.log("📌 MCP already connected, skipping connection");
+    }
 
     // Collect all tools, including MCP tools
     const mcpTools = this.mcp.getAITools();
@@ -80,7 +87,7 @@ export class Chat extends AIChatAgent<Env> {
         });
 
         const result = streamText({
-          system: `You are a helpful assistant that can do various tasks... 
+          system: `You are a helpful math assistant that can do various tasks...
 
 ${getSchedulePrompt({ date: new Date() })}
 
