@@ -201,7 +201,9 @@ export default function Chat() {
                   <div className="bg-[#F48120]/10 text-[#F48120] rounded-full p-3 inline-flex">
                     <Robot size={24} />
                   </div>
-                  <h3 className="font-semibold text-lg">Welcome to your Basic Math Agent</h3>
+                  <h3 className="font-semibold text-lg">
+                    Welcome to your Basic Math Agent
+                  </h3>
                   <p className="text-muted-foreground text-sm">
                     Start a conversation with your AI assistant. Try asking
                     about:
@@ -209,11 +211,19 @@ export default function Chat() {
                   <ul className="text-sm text-left space-y-2">
                     <li className="flex items-center gap-2">
                       <span className="text-[#F48120]">•</span>
-                      <span>Weather information for any city</span>
+                      <span>Multiply two numbers together</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="text-[#F48120]">•</span>
-                      <span>Local time in different locations</span>
+                      <span>Get the square root of a number</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#F48120]">•</span>
+                      <span>Number to the power of an exponent</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#F48120]">•</span>
+                      <span>The Sine value of a number</span>
                     </li>
                   </ul>
                 </div>
@@ -294,11 +304,8 @@ export default function Chat() {
                               </div>
                             );
                           }
-                          
-                          if (
-                            isToolUIPart(part) &&
-                            m.role === "assistant"
-                          ) {
+
+                          if (isToolUIPart(part) && m.role === "assistant") {
                             const toolCallId = part.toolCallId;
                             const toolName = part.type.replace("tool-", "");
                             const needsConfirmation =
