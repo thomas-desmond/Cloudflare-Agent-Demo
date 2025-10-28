@@ -1,7 +1,5 @@
 import { routeAgentRequest, type Schedule } from "agents";
-
 import { getSchedulePrompt } from "agents/schedule";
-
 import { AIChatAgent } from "agents/ai-chat-agent";
 import {
   generateId,
@@ -13,17 +11,20 @@ import {
   createUIMessageStreamResponse,
   type ToolSet
 } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 import { processToolCalls, cleanupMessages } from "./utils";
 import { tools, executions } from "./tools";
-// import { env } from "cloudflare:workers";
+import { env } from "cloudflare:workers";
 
-const model = openai("gpt-4o-2024-11-20");
-// Cloudflare AI Gateway
-// const openai = createOpenAI({
-//   apiKey: env.OPENAI_API_KEY,
-//   baseURL: env.GATEWAY_BASE_URL,
-// });
+const openaiWithProxy = createOpenAI({
+  baseURL:
+    "https://gateway.ai.cloudflare.com/v1/d6850012d250c1600028b55d1d879b16/math-ai-agent/openai",
+    headers: {
+      "cf-aig-authorization": `Bearer ${process.env.AI_GATEWAY_API_KEY}`
+    }
+});
+
+const model = openaiWithProxy("gpt-4o-2024-11-20");
 
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
@@ -36,14 +37,32 @@ export class Chat extends AIChatAgent<Env> {
     onFinish: StreamTextOnFinishCallback<ToolSet>,
     _options?: { abortSignal?: AbortSignal }
   ) {
-    // const mcpConnection = await this.mcp.connect(
-    //   "https://path-to-mcp-server/sse"
-    // );
+
+    
+    console.log("🚀 Starting MCP connection...");
+    const startTime = Date.now();
+
+    //TODO: DON"T CONNECT IF ALREADY CONNECTED
+    await this.mcp.connect("https://basic-math.areyouaidemo.com/mcp", {
+      transport: {
+        requestInit: {
+          headers: {
+            "CF-Access-Client-Id": `${process.env.CF_ACCESS_CLIENT_ID}`,
+            "CF-Access-Client-Secret": `${process.env.CF_ACCESS_CLIENT_SECRET}`
+          }
+        }
+      }
+    });
+    const endTime = Date.now();
+    console.log(`✅ MCP connection completed in ${endTime - startTime}ms`);
 
     // Collect all tools, including MCP tools
+    const mcpTools = this.mcp.getAITools();
+    console.log("Available MCP tools:", Object.keys(mcpTools));
+
     const allTools = {
       ...tools,
-      ...this.mcp.getAITools()
+      ...mcpTools
     };
 
     const stream = createUIMessageStream({
@@ -102,6 +121,25 @@ If the user asks to schedule a task, use the schedule tool to schedule the task.
         }
       }
     ]);
+  }
+
+  /**
+   * Handle OAuth callback requests for MCP authentication
+   */
+  async onRequest(req: Request): Promise<Response> {
+    // Handle the auth callback after finishing the MCP server auth flow
+    if (this.mcp.isCallbackRequest(req)) {
+      await this.mcp.handleCallbackRequest(req);
+      return new Response("Authorized", {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html"
+        }
+      });
+    }
+
+    // Call the parent class method for other requests
+    return super.onRequest(req);
   }
 }
 
