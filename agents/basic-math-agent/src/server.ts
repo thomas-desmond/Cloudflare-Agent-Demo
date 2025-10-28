@@ -41,7 +41,9 @@ export class Chat extends AIChatAgent<Env> {
     
     console.log("🚀 Starting MCP connection...");
     const startTime = Date.now();
-    await this.mcp.connect("https://math-mcp2.areyouaidemo.com/mcp", {
+
+    //TODO: DON"T CONNECT IF ALREADY CONNECTED
+    await this.mcp.connect("https://basic-math.areyouaidemo.com/mcp", {
       transport: {
         requestInit: {
           headers: {
