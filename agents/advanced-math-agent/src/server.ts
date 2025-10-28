@@ -43,7 +43,7 @@ export class Chat extends AIChatAgent<Env> {
     const startTime = Date.now();
 
     //TODO: DON"T CONNECT IF ALREADY CONNECTED
-    await this.mcp.connect("https://basic-math.areyouaidemo.com/mcp", {
+    await this.mcp.connect("https://advanced-math.areyouaidemo.com/mcp", {
       transport: {
         requestInit: {
           headers: {
