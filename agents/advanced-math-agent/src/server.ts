@@ -19,9 +19,9 @@ import { env } from "cloudflare:workers";
 const openaiWithProxy = createOpenAI({
   baseURL:
     "https://gateway.ai.cloudflare.com/v1/4ada3fc2e7dcf09a09749af670622778/math-ai-agent/openai",
-    headers: {
-      "cf-aig-authorization": `Bearer ${process.env.AI_GATEWAY_API_KEY}`
-    }
+  headers: {
+    "cf-aig-authorization": `Bearer ${process.env.AI_GATEWAY_API_KEY}`
+  }
 });
 
 const model = openaiWithProxy("gpt-4o-2024-11-20");
@@ -38,24 +38,24 @@ export class Chat extends AIChatAgent<Env> {
     onFinish: StreamTextOnFinishCallback<ToolSet>,
     _options?: { abortSignal?: AbortSignal }
   ) {
-
-    
-    // Only connect if not already connected
     if (!this.mcpConnected) {
       console.log("🚀 Starting MCP connection...");
       const startTime = Date.now();
 
-      await this.mcp.connect("https://advanced-math-portal.cf-dev-platform.com/mcp", {
-        transport: {
-          requestInit: {
-            headers: {
-              "CF-Access-Client-Id": `${process.env.CF_ACCESS_CLIENT_ID}`,
-              "CF-Access-Client-Secret": `${process.env.CF_ACCESS_CLIENT_SECRET}`
+      await this.mcp.connect(
+        "https://advanced-math-portal.cf-dev-platform.com/mcp",
+        {
+          transport: {
+            requestInit: {
+              headers: {
+                "CF-Access-Client-Id": `${process.env.CF_ACCESS_CLIENT_ID}`,
+                "CF-Access-Client-Secret": `${process.env.CF_ACCESS_CLIENT_SECRET}`
+              }
             }
           }
         }
-      });
-      
+      );
+
       this.mcpConnected = true;
       const endTime = Date.now();
       console.log(`✅ MCP connection completed in ${endTime - startTime}ms`);
