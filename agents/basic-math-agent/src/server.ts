@@ -18,7 +18,7 @@ import { env } from "cloudflare:workers";
 
 const openaiWithProxy = createOpenAI({
   baseURL:
-    "https://gateway.ai.cloudflare.com/v1/d6850012d250c1600028b55d1d879b16/math-ai-agent/openai",
+    "https://gateway.ai.cloudflare.com/v1/4ada3fc2e7dcf09a09749af670622778/math-ai-agent/openai",
     headers: {
       "cf-aig-authorization": `Bearer ${process.env.AI_GATEWAY_API_KEY}`
     }
@@ -45,7 +45,7 @@ export class Chat extends AIChatAgent<Env> {
       console.log("🚀 Starting MCP connection...");
       const startTime = Date.now();
 
-      await this.mcp.connect("https://basic-math.areyouaidemo.com/mcp", {
+      await this.mcp.connect("https://basic-math-portal.cf-dev-platform.com/mcp", {
         transport: {
           requestInit: {
             headers: {
